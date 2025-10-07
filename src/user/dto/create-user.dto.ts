@@ -28,13 +28,4 @@ export class CreateUserDto {
   @IsOptional()
   role: RoleEnum;
 
-  @ApiProperty({example: '2023-10-10T14:48:00.000Z', description: 'วันที่สร้าง'})
-  @IsDate()
-  @IsOptional()
-  created_At: Date;
-
-  @ApiProperty({example: '2023-10-10T14:48:00.000Z', description: 'วันที่แก้ไขล่าสุด'})
-  @IsDate()
-  @IsOptional()
-  updated_At: Date;
 }

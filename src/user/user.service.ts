@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -26,8 +30,18 @@ export class UserService {
         throw new BadRequestException('มีข้อมูลนี้ในระบบแล้ว');
       }
 
-      const result = this.userRepository.create(body);
-      return this.userRepository.save(result);
+      const password = await User.hashPassword(body.password);
+      const Newbody = this.userRepository.create({
+        username: body.username,
+        firstName: body.firstName,
+        lastName: body.lastName,
+        role: body.role,
+        password,
+      });
+      const saveUser = await this.userRepository.save(Newbody);
+
+      const { passwordHash: _omit, ...result } = saveUser as any;
+      return result;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
@@ -49,7 +63,7 @@ export class UserService {
 
       if (search) {
         query.andWhere(
-          '(user.username ILIKE :search OR user.fname ILIKE :search OR user.lname ILIKE :search)',
+          '(user.username ILIKE :search OR user.firstname ILIKE :search OR user.lastname ILIKE :search)',
           { search: `%${search}%` },
         );
       }
@@ -87,35 +101,46 @@ export class UserService {
   }
 
   public async findOne(id: string): Promise<User | null> {
-    try{
-      const result = this.userRepository.findOne({where: {id} });
+    try {
+      const result = this.userRepository.findOne({ where: { id } });
       return result;
-    } catch(error){
+    } catch (error) {
       throw new InternalServerErrorException(error);
     }
   }
 
   public async update(id: string, body: UpdateUserDto) {
-    try{
-      const user = await this.userRepository.findOne({where: {id} });
-      if(!user){
+    try {
+      const user = await this.userRepository.findOne({ where: { id } });
+      if (!user) {
         throw new BadRequestException('ไม่พบข้อมูลนี้ในระบบ');
       }
       const updatedUser = Object.assign(user, body);
       return this.userRepository.save(updatedUser);
-    } catch(error){
+    } catch (error) {
       throw new InternalServerErrorException(error);
     }
   }
 
   public async remove(id: string): Promise<void> {
-    const user = await this.userRepository.findOne({where: {id} });
-    if(!user){
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
       throw new BadRequestException('ไม่พบข้อมูลนี้ในระบบ');
     }
     await this.userRepository.remove(user);
     return;
   }
 
-  
+  public async findByUsername(username: string): Promise<User | null> {
+    try {
+      const result = this.userRepository
+        .createQueryBuilder('user')
+        .addSelect('user.password')
+        .where('user.username = :username', { username })
+        .getOne();
+      return result;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
 }
