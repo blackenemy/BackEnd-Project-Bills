@@ -1,34 +1,81 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Req,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 import { BillFollowersService } from './bill_followers.service';
-import { CreateBillFollowerDto } from './dto/create-bill_follower.dto';
-import { UpdateBillFollowerDto } from './dto/update-bill_follower.dto';
+import { RolesGuard } from 'src/common/guard/roles.guard';
+import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
 
+@ApiTags('Bill-followers')
+@UseGuards(AuthGuard('jwt'))
 @Controller('bill-followers')
 export class BillFollowersController {
-  constructor(private readonly billFollowersService: BillFollowersService) {}
+  constructor(private readonly service: BillFollowersService) {}
 
-  @Post()
-  create(@Body() createBillFollowerDto: CreateBillFollowerDto) {
-    return this.billFollowersService.create(createBillFollowerDto);
+  // ติดตามบิล
+  @ApiBearerAuth('bearer')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'ติดตามบิล' })
+  @Post(':billId/follow')
+  public async follow(
+    @Param('billId', ParseIntPipe) billId: number,
+    @Request() req,
+  ) {
+    const userId = req.user.id;
+    return this.service.follow(billId, userId);
   }
 
-  @Get()
-  findAll() {
-    return this.billFollowersService.findAll();
+  // เลิกติดตาม
+  @ApiBearerAuth('bearer')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'เลิกติดตามบิล' })
+  @Delete(':billId/follow')
+  public async unfollow(
+    @Param('billId', ParseIntPipe) billId: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    return this.service.unfollow(billId, userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.billFollowersService.findOne(+id);
+  // กำลังติดตามอยู่ไหม
+  @ApiBearerAuth('bearer')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'ตรวจสอบกำลังติดตามอยู่หรือไม่' })
+  @Get(':billId/is-following')
+  public async isFollowing(
+    @Param('billId', ParseIntPipe) billId: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    return this.service.isFollowing(billId, userId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBillFollowerDto: UpdateBillFollowerDto) {
-    return this.billFollowersService.update(+id, updateBillFollowerDto);
+  // รายการบิลที่ฉันติดตาม
+  @ApiBearerAuth('bearer')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'รายการบิลที่ฉันติดตาม' })
+  @Get('bill/list')
+  public async listBill(@Req() req: any) {
+    const userId = req.user?.id;
+    return this.service.listMyFollowing(userId);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.billFollowersService.remove(+id);
+  // รายชื่อผู้ติดตามของบิล
+  @ApiBearerAuth('bearer')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'รายชื่อผู้ติดตามของบิล' })
+  @Get(':billId/followers')
+  public async listFollowers(@Param('billId', ParseIntPipe) billId: number) {
+    return this.service.listFollowersOfBill(billId);
   }
 }

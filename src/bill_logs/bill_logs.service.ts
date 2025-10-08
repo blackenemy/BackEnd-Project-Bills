@@ -8,7 +8,7 @@ import { CreateBillLogDto } from './dto/create-bill_log.dto';
 import { UpdateBillLogDto } from './dto/update-bill_log.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BillLog } from './entities/bill_log.entity';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { NotFoundError } from 'rxjs';
 import { getBillLogDto } from './dto/get-bill_log.dto';
 import { PaginatedBillLog } from 'src/common/interface/paginate.interface';
@@ -21,23 +21,24 @@ export class BillLogsService {
     @InjectRepository(BillLog)
     private readonly billLogRepo: Repository<BillLog>,
   ) {}
-  
+
   public async create(body: CreateBillLogDto, @Request() req) {
     try {
-      const billLog = await this.billLogRepo.create({
-        bill_Id: req.bill.id,
-        user_Id: req.user.id,
+      const payload: DeepPartial<BillLog> = {
+        ...body,
+        billId: body.billId,
+        userId: body.userId,
         action: BillLogAction.CREATED,
-        old_status: req.body ?? null,
-        new_status: req.body,
-        created_at: new Date(),
-      });
-      return this.billLogRepo.save(billLog);
-    } catch (error) {
-      throw new error();
+        oldStatus: body.oldStatus,
+        newStatus: body.newStatus,
+      };
+
+      const billLog = this.billLogRepo.create(payload);
+      return await this.billLogRepo.save(billLog);
+    } catch (err) {
+      throw new InternalServerErrorException(err.message ?? err);
     }
   }
-
   public async findAll(
     params: getBillLogDto,
   ): Promise<PaginatedBillLog | BillLog[]> {
@@ -108,8 +109,7 @@ export class BillLogsService {
   public async findOne(id: number) {
     try {
       const billLog = await this.billLogRepo.findOne({
-        where: { id },
-        relations: ['bill', 'user'],
+        where: { id }
       });
 
       if (!billLog) {
@@ -137,8 +137,8 @@ export class BillLogsService {
   public async remove(id: number) {
     try {
       const billLog = await this.billLogRepo.softDelete(id);
-      if (billLog.affected === 0){
-        throw new NotFoundException(`Bill Log ${id} not found`)
+      if (billLog.affected === 0) {
+        throw new NotFoundException(`Bill Log ${id} not found`);
       }
     } catch (error) {}
   }

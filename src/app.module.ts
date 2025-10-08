@@ -6,7 +6,6 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/entities/user.entity';
-import { LoginModule } from './login/login.module';
 import { BillsModule } from './bills/bills.module';
 import { BillLogsModule } from './bill_logs/bill_logs.module';
 import { BillFollowersModule } from './bill_followers/bill_followers.module';
@@ -35,7 +34,6 @@ import { BillLog } from './bill_logs/entities/bill_log.entity';
 
     UserModule,
     AuthModule,
-    LoginModule,
     BillsModule,
     BillLogsModule,
     BillFollowersModule,

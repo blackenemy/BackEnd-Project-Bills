@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -100,16 +101,19 @@ export class UserService {
     }
   }
 
-  public async findOne(id: string): Promise<User | null> {
+  public async findOne(id: number): Promise<User | null> {
     try {
       const result = this.userRepository.findOne({ where: { id } });
+      if(!result){
+        throw new NotFoundException(`User ID ${id} not found`)
+      }
       return result;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
   }
 
-  public async update(id: string, body: UpdateUserDto) {
+  public async update(id: number, body: UpdateUserDto) {
     try {
       const user = await this.userRepository.findOne({ where: { id } });
       if (!user) {
@@ -122,7 +126,7 @@ export class UserService {
     }
   }
 
-  public async remove(id: string): Promise<void> {
+  public async remove(id: number): Promise<void> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new BadRequestException('ไม่พบข้อมูลนี้ในระบบ');

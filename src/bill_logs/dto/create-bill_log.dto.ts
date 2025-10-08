@@ -13,7 +13,7 @@ export class CreateBillLogDto {
   @ApiProperty({ example: 42, description: 'FK → bills.id' })
   @IsOptional()
   @IsInt()
-  bill_Id: number;
+  billId: number;
 
   @ApiProperty({
     enum: BillLogAction,
@@ -27,7 +27,7 @@ export class CreateBillLogDto {
   @ApiProperty({ example: 7, description: 'หมายเลขสมาชิก' })
   @IsOptional()
   @IsInt()
-  user_Id?: string;
+  userId: number;
 
   @ApiPropertyOptional({
     example: 'รอดำเนินการ',
@@ -35,12 +35,12 @@ export class CreateBillLogDto {
   })
   @IsOptional()
   @IsString()
-  old_status?: string;
+  oldStatus?: string;
 
   @ApiPropertyOptional({ example: 'ผ่าน', description: 'สถานะใหม่ (ถ้ามี)' })
   @IsOptional()
   @IsString()
-  new_status?: string;
+  newStatus?: string;
 
   @ApiProperty({
     example: 'สร้างบิลใหม่',

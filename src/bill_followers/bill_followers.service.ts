@@ -1,26 +1,96 @@
-import { Injectable } from '@nestjs/common';
-import { CreateBillFollowerDto } from './dto/create-bill_follower.dto';
-import { UpdateBillFollowerDto } from './dto/update-bill_follower.dto';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  Request,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { Bill } from 'src/bills/entities/bill.entity';
+import { BillFollower } from './entities/bill_follower.entity';
+import { title } from 'process';
 
 @Injectable()
 export class BillFollowersService {
-  create(createBillFollowerDto: CreateBillFollowerDto) {
-    return 'This action adds a new billFollower';
+  constructor(
+    @InjectRepository(BillFollower)
+    private readonly repo: Repository<BillFollower>,
+    @InjectRepository(Bill) private readonly billRepo: Repository<Bill>,
+  ) {}
+
+  // ติดตามบิล
+  public async follow(billId: number, userId: number) {
+    try {
+      const bill = await this.billRepo.findOne({ where: { id: billId } });
+      if (!bill) throw new NotFoundException('Bill not found');
+
+      const exist = await this.repo.findOne({
+        where: { bill: { id: billId }, user: { id: userId } },
+      });
+      if (exist) throw new ConflictException('Already following');
+
+      const result = this.repo.create({
+        bill: { id: billId } as any,
+        user: { id: userId } as any,
+      });
+      return await this.repo.save(result);
+    } catch (error) {
+      throw new error();
+    }
   }
 
-  findAll() {
-    return `This action returns all billFollowers`;
+  // เลิกติดตาม
+  public async unfollow(billId: number, userId: number) {
+    try {
+      const exist = await this.repo.findOne({
+        where: { bill: { id: billId }, user: { id: userId } },
+      });
+      if (!exist) throw new NotFoundException('Not following');
+
+      return await this.repo.remove(exist);
+    } catch (error) {
+      throw new error();
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} billFollower`;
+  // กำลังติดตามอยู่ไหม
+  public async isFollowing(billId: number, userId: number) {
+    try {
+      const exist = await this.repo.findOne({
+        where: { bill: { id: billId }, user: { id: userId } },
+      });
+      return { isFollowing: !!exist };
+    } catch (error) {
+      throw new error();
+    }
   }
 
-  update(id: number, updateBillFollowerDto: UpdateBillFollowerDto) {
-    return `This action updates a #${id} billFollower`;
+  // รายการบิลที่ฉันติดตาม
+  public async listMyFollowing(userId: number) {
+    try {
+      const result = await this.repo.find({
+        where: { user: { id: userId } },
+        relations: ['bill'],
+        order: { created_at: 'DESC' },
+      });
+      return result;
+    } catch (error) {
+      throw new error();
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} billFollower`;
+  // รายชื่อผู้ติดตามของบิล
+  public async listFollowersOfBill(billId: number) {
+    try {
+      const result = await this.repo.find({
+        where: { bill: { id: billId } },
+        relations: ['user', 'bill'],
+        order: { created_at: 'DESC' },
+      });
+      return result;
+    } catch (error) {
+      throw new error();
+    }
   }
 }

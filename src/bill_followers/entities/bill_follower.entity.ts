@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   CreateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Bill } from 'src/bills/entities/bill.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -13,11 +14,13 @@ export class BillFollower {
   id: number;
 
   @ManyToOne(() => Bill, (bill) => bill.followers, { onDelete: 'CASCADE' })
+  @JoinColumn({name:'bill_id'})
   bill: Bill;
 
   @ManyToOne(() => User, (user) => user.billFollowers, { onDelete: 'CASCADE' })
+  @JoinColumn({name:'user_id'})
   user: User;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({ name:'createAt',type: 'timestamp' })
   created_at: Date;
 }

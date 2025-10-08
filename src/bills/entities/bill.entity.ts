@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { BillLog } from 'src/bill_logs/entities/bill_log.entity';
@@ -34,14 +35,17 @@ export class Bill {
   created: User | null;
 
   @Column({name:'createBy', nullable: true})
-  create_by: string;
+  create_by: number;
 
-  @CreateDateColumn({ name: 'createAt', type: 'timestamp' })
+  @CreateDateColumn({ name: 'createAt', type: 'timestamp' ,nullable: true})
   created_At: Date;
 
-  @UpdateDateColumn({ name: 'updateAt', type: 'timestamp' })
+  @UpdateDateColumn({ name: 'updateAt', type: 'timestamp' ,nullable: true})
   updated_at: Date;
 
+  @DeleteDateColumn({ name: 'deletedAt', type: 'timestamp', nullable: true })
+  deleted_At?: Date;
+  
   @OneToMany(() => BillLog, (log) => log.bill)
   logs: BillLog[];
 

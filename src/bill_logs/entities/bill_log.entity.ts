@@ -16,27 +16,27 @@ export class BillLog {
   id: number;
 
   @ManyToOne(() => Bill, (bill) => bill.logs, { onDelete: 'CASCADE' })
-  @JoinColumn({name:'bill_Id'})
+  @JoinColumn({name:'billId'})
   bill: Bill;
 
-  @Column({name:'bill_Id'})
-  bill_Id:number;
+  @Column({name:'billId', nullable: true})
+  billId: number | null;
 
   @Column({ name:'action', enum: BillLogAction })
   action: BillLogAction; // เช่น created, updated, deleted, status_changed
 
   @ManyToOne(() => User, (user) => user.billLogs, { onDelete: 'SET NULL' })
-  @JoinColumn({name:'user_Id'})
+  @JoinColumn({name:'userId'})
   user: User;
 
-  @Column({name:'userId'})
-  user_Id: string;
+  @Column({name:'userId', nullable: true})
+  userId: number | null;
 
   @Column({ name:'old_status', nullable: true })
-  old_status: string;
+  oldStatus: string;
 
   @Column({ name:'new_status', nullable: true })
-  new_status: string;
+  newStatus: string;
 
   @Column({ name: 'note', nullable: true })
   note: string;

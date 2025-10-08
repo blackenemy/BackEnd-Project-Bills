@@ -11,8 +11,8 @@ import { BillLog } from 'src/bill_logs/entities/bill_log.entity';
 import { BillFollower } from 'src/bill_followers/entities/bill_follower.entity';
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid', { name: 'id' })
-  id: string;
+  @PrimaryGeneratedColumn({ name: 'id' })
+  id: number;
 
   @Column({ name: 'username', nullable: true })
   username: string;
