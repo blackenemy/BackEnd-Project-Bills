@@ -16,7 +16,7 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Expose port
+# Expose ports
 EXPOSE 3100
 
 # Create non-root user for security
