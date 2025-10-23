@@ -16,7 +16,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - bills_network
+      - app-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U bills_user -d bills_db"]
       interval: 10s
@@ -59,7 +59,7 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - bills_network
+      - app-network
     volumes:
       - ./logs:/app/logs
     healthcheck:
@@ -81,12 +81,15 @@ services:
     depends_on:
       - postgres
     networks:
-      - bills_network
+      - app-network
 
 volumes:
   postgres_data:
     driver: local
 
 networks:
+  app-network:
+    external: true
+    name: restful_api_network
   bills_network:
     driver: bridge
