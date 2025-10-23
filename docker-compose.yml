@@ -72,7 +72,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@bills.com
       PGADMIN_DEFAULT_PASSWORD: admin123
     ports:
-      - "8080:80"
+      - "8082:80"
     depends_on:
       - postgres
     networks:
