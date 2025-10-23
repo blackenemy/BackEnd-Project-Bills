@@ -27,8 +27,8 @@ import { BillLog } from './bill_logs/entities/bill_log.entity';
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
         entities: [User, Bill, BillFollower, BillLog],
-        synchronize: false,
-        logging: true,
+        synchronize: process.env.NODE_ENV !== 'production',
+        logging: process.env.NODE_ENV === 'development',
       }),
     }),
 

@@ -1,0 +1,31 @@
+# Development Dockerfile
+FROM node:18-alpine
+
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Expose ports (app and debug)
+EXPOSE 3100 9229
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nestjs -u 1001
+
+# Change ownership
+RUN chown -R nestjs:nodejs /app
+USER nestjs
+
+# Start in development mode with debug
+CMD ["npm", "run", "start:debug"]

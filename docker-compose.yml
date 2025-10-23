@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: bills_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bills_db
+      POSTGRES_USER: bills_user
+      POSTGRES_PASSWORD: bills_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - bills_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bills_user -d bills_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NestJS Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bills_app
+    restart: unless-stopped
+    ports:
+      - "3100:3000"
+    environment:
+      # Database Configuration
+      DB_HOST: postgres
+      DB_PORT: 5433
+      DB_USERNAME: bills_user
+      DB_PASSWORD: bills_password
+      DB_NAME: bills_db
+      
+      # JWT Configuration
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+      JWT_EXPIRES_IN: 24h
+      
+      # API Key
+      X_API_KEY: your-api-key-here
+      
+      # Server Port
+      PORT: 3100
+      
+      # Bcrypt Rounds
+      BCRYPT_ROUNDS: 10
+      
+      # Node Environment
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bills_network
+    volumes:
+      - ./logs:/app/logs
+
+  # pgAdmin (Optional - for database management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: bills_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@bills.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    networks:
+      - bills_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  bills_network:
+    driver: bridge

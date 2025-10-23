@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: bills_postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bills_db
+      POSTGRES_USER: bills_user
+      POSTGRES_PASSWORD: bills_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - bills_dev_network
+
+  # NestJS Development
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: bills_app_dev
+    restart: unless-stopped
+    ports:
+      - "3100:3000"
+      - "9229:9229"  # Debug port
+    environment:
+      # Database Configuration
+      DB_HOST: postgres
+      DB_PORT: 5433
+      DB_USERNAME: bills_user
+      DB_PASSWORD: bills_password
+      DB_NAME: bills_db
+      
+      # JWT Configuration
+      JWT_SECRET: dev-secret-key
+      JWT_EXPIRES_IN: 24h
+      
+      # API Key
+      X_API_KEY: dev-api-key
+      
+      # Server Port
+      PORT: 3100
+      
+      # Bcrypt Rounds
+      BCRYPT_ROUNDS: 10
+      
+      # Node Environment
+      NODE_ENV: development
+    depends_on:
+      - postgres
+    networks:
+      - bills_dev_network
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./logs:/app/logs
+    command: npm run start:debug
+
+volumes:
+  postgres_dev_data:
+    driver: local
+
+networks:
+  bills_dev_network:
+    driver: bridge
