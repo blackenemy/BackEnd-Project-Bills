@@ -23,7 +23,7 @@ export class UserService {
       const checkUser = await this.userRepository.findOne({
         where: [
           { username: body.username },
-          { firstName: body.firstName, lastName: body.lastName },
+          { firstname: body.firstname, lastname: body.lastname },
         ],
       });
 
@@ -34,8 +34,8 @@ export class UserService {
       const password = await User.hashPassword(body.password);
       const Newbody = this.userRepository.create({
         username: body.username,
-        firstName: body.firstName,
-        lastName: body.lastName,
+        firstname: body.firstname,
+        lastname: body.lastname,
         role: body.role,
         password,
       });

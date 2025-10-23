@@ -13,15 +13,15 @@ export class CreateUserDto {
   @IsOptional()
   password: string
 
-  @ApiProperty({example: 'คำมี', description: 'ชื่อจริง'})
+  @ApiProperty({example: 'สมชาย', description: 'ชื่อจริง'})
   @IsString()
   @IsOptional()
-  firstName: string;
+  firstname: string;
 
-  @ApiProperty({example: 'แสนคำ', description: 'นามสกุล'})
+  @ApiProperty({example: 'ใจดี', description: 'นามสกุล'})
   @IsString()
   @IsOptional()
-  lastName: string
+  lastname: string
 
   @ApiProperty({example: RoleEnum.USER, description: 'สิทธิ์การใช้งาน'})
   @IsEnum(RoleEnum)
