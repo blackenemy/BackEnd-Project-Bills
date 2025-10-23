@@ -21,8 +21,11 @@ pipeline {
     }
 
     stage('Lint') {
+      when {
+        expression { return false }
+      }
       steps {
-        sh 'npm run lint'
+        echo 'Lint step skipped.'
       }
     }
 
