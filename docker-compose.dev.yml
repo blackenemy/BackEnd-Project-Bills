@@ -43,7 +43,7 @@ services:
       X_API_KEY: dev-api-key
       
       # Server Port
-      PORT: 3100
+      PORT: 3000
       
       # Bcrypt Rounds
       BCRYPT_ROUNDS: 10
