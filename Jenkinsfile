@@ -41,6 +41,13 @@ pipeline {
       }
     }
 
+    stage('Remove Postgres Volume') {
+      steps {
+        sh 'docker-compose down'
+        sh 'docker volume rm project-bill-backend_postgres_data || true'
+      }
+    }
+
     stage('Deploy with Docker Compose') {
       steps {
         sh "docker-compose -f $COMPOSE_FILE up -d --build"
