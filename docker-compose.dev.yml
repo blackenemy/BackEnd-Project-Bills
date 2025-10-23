@@ -30,7 +30,7 @@ services:
     environment:
       # Database Configuration
       DB_HOST: postgres
-      DB_PORT: 5433
+      DB_PORT: 5432
       DB_USERNAME: bills_user
       DB_PASSWORD: bills_password
       DB_NAME: bills_db
