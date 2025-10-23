@@ -1,13 +1,25 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard } from 'src/common/guard/local-auth.guard';
-import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
-import { RolesGuard } from 'src/common/guard/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { GetUser } from 'src/common/decorators/get-user.decorator';
-import { Request } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
+
+interface AuthUser {
+  id: string;
+  username: string;
+  role: string;
+}
+
+interface AuthRequest {
+  user: AuthUser;
+}
+
+interface RegisterBody {
+  username: string;
+  password: string;
+  role?: string;
+}
+
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -16,9 +28,8 @@ export class AuthController {
   @ApiOperation({ summary: 'ล็อกอิน' })
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  @ApiBody({ type: LoginDto }) // ให้ Scalar/Swagger แสดง body example
-  async login(@Request() req) {
-    // req.user มาจาก LocalStrategy.validate()
+  @ApiBody({ type: LoginDto })
+  async login(@Req() req: AuthRequest) {
     return this.authService.login(req.user);
   }
 
@@ -35,7 +46,7 @@ export class AuthController {
       required: ['username', 'password'],
     },
   })
-  async register(@Body() body: any) {
+  async register(@Body() body: RegisterBody) {
     return this.authService.register(body);
   }
 }

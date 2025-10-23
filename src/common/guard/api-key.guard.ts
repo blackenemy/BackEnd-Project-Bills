@@ -5,15 +5,14 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Request } from 'express';
+
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
-    const apiKey = request.header('X-API-KEY');
-    const validKeys = [
-      process.env.X_API_KEY,
-    ].filter(Boolean);
-
+    const req = context.switchToHttp().getRequest<Request>();
+    const apiKey = req.header('X-API-KEY');
+    const validKeys: string[] = [process.env.X_API_KEY ?? ''].filter(Boolean);
     if (!apiKey || !validKeys.includes(apiKey)) {
       throw new UnauthorizedException('Invalid API key');
     }
