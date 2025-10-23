@@ -24,8 +24,9 @@ export class AuthService {
     const match = await bcrypt.compare(pass, user.password);
     if (!match) return null;
 
-    // ไม่คืน password ออกไป
-    const { password, ...safe } = user;
+    // ไม่ต้อง destructure password ถ้าไม่ได้ใช้
+    const safe: Omit<User, 'password'> & { password?: string } = { ...user };
+    if ('password' in safe) delete safe.password;
     return safe;
   }
 
@@ -37,7 +38,13 @@ export class AuthService {
     };
   }
 
-  async register(data: { username: string; password: string; role?: string }) {
+  async register(data: {
+    username: string;
+    password: string;
+    role?: string;
+    firstName?: string;
+    lastName?: string;
+  }) {
     const existed = await this.userRepo.findOne({
       where: { username: data.username },
     });
@@ -47,10 +54,12 @@ export class AuthService {
     const user = this.userRepo.create({
       username: data.username,
       password: hashed,
-      role: (data.role as any) ?? 'user',
+      role: data.role ?? 'user',
+      firstName: data.firstName ?? '',
+      lastName: data.lastName ?? '',
     });
     const saved = await this.userRepo.save(user);
-    const { password, ...safe } = saved;
-    return safe;
+    // ไม่ต้อง destructure password ถ้าไม่ได้ใช้
+    return saved;
   }
 }

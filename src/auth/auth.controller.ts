@@ -42,6 +42,8 @@ export class AuthController {
         username: { type: 'string', example: 'newuser' },
         password: { type: 'string', example: '1234' },
         role: { type: 'string', example: 'user', enum: ['user', 'admin'] },
+        firstName: { type: 'string', example: 'สมชาย' },
+        lastName: { type: 'string', example: 'ใจดี' },
       },
       required: ['username', 'password'],
     },
