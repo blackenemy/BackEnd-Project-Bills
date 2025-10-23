@@ -10,6 +10,9 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci --only=production
 
+# Install NestJS CLI globally
+RUN npm install -g @nestjs/cli
+
 # Copy source code
 COPY . .
 
