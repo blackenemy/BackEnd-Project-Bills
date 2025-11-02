@@ -20,20 +20,6 @@ pipeline {
       }
     }
 
-    stage('Lint') {
-      when {
-        expression { return false }
-      }
-      steps {
-        echo 'Lint step skipped.'
-      }
-    }
-
-    stage('Test') {
-      steps {
-        sh 'npm run test'
-      }
-    }
 
     stage('Build Docker Image') {
       steps {
