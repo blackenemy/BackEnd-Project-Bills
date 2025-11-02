@@ -13,11 +13,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Insert sample data (optional)
 -- You can add initial data here if needed
 
--- Example: Create an admin user
--- INSERT INTO users (username, password, firstname, lastname, role, "createdAt", "updatedAt") 
--- VALUES ('admin', '$2b$10$example.hash.here', 'Admin', 'User', 'admin', NOW(), NOW())
--- ON CONFLICT (username) DO NOTHING;
-
 -- Grant permissions
 GRANT ALL PRIVILEGES ON DATABASE bills_db TO bills_user;
 
@@ -28,8 +23,8 @@ CREATE TABLE IF NOT EXISTS users (
     firstname VARCHAR(255),
     lastname VARCHAR(255),
     role VARCHAR(50),
-    createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS bills (
@@ -39,25 +34,25 @@ CREATE TABLE IF NOT EXISTS bills (
     amount VARCHAR(255),
     status VARCHAR(50),
     create_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS bill_logs (
     id SERIAL PRIMARY KEY,
-    billId INTEGER REFERENCES bills(id) ON DELETE CASCADE,
+    bill_id INTEGER REFERENCES bills(id) ON DELETE CASCADE,
     action VARCHAR(50),
-    userId INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     old_status VARCHAR(50),
     new_status VARCHAR(50),
     note TEXT,
-    createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS bill_followers (
     id SERIAL PRIMARY KEY,
     bill_id INTEGER REFERENCES bills(id) ON DELETE CASCADE,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

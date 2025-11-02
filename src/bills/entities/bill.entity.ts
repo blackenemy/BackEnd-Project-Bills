@@ -9,9 +9,9 @@ import {
   JoinColumn,
   DeleteDateColumn,
 } from 'typeorm';
-import { User } from 'src/user/entities/user.entity';
-import { BillLog } from 'src/bill_logs/entities/bill_log.entity';
-import { BillFollower } from 'src/bill_followers/entities/bill_follower.entity';
+import { User } from '../../user/entities/user.entity';
+import { BillLog } from '../../bill_logs/entities/bill_log.entity';
+import { BillFollower } from '../../bill_followers/entities/bill_follower.entity';
 
 @Entity('bills')
 export class Bill {
@@ -31,20 +31,20 @@ export class Bill {
   status: string; // เช่น 'รอดำเนินการ', 'ผ่าน', 'ไม่ผ่าน', 'ยกเลิก'
 
   @ManyToOne(() => User, (user) => user.bills, { onDelete: 'SET NULL' })
-  @JoinColumn({name:'create_by'})
-  created: User | null;
+  @JoinColumn({ name: 'create_by' })
+  created_by: User | null;
 
-  @Column({name:'createBy', nullable: true})
+  @Column({ name: 'create_by', nullable: true })
   create_by: number;
 
-  @CreateDateColumn({ name: 'createAt', type: 'timestamp' ,nullable: true})
-  created_At: Date;
+  @Column({ name: 'created_at', type: 'timestamp', nullable: true })
+  created_at: Date;
 
-  @UpdateDateColumn({ name: 'updateAt', type: 'timestamp' ,nullable: true})
+  @Column({ name: 'updated_at', type: 'timestamp', nullable: true })
   updated_at: Date;
 
-  @DeleteDateColumn({ name: 'deletedAt', type: 'timestamp', nullable: true })
-  deleted_At?: Date;
+  @Column({ name: 'deleted_at', type: 'timestamp', nullable: true })
+  deleted_at?: Date;
   
   @OneToMany(() => BillLog, (log) => log.bill)
   logs: BillLog[];

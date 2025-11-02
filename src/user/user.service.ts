@@ -102,28 +102,20 @@ export class UserService {
   }
 
   public async findOne(id: number): Promise<User | null> {
-    try {
-      const result = this.userRepository.findOne({ where: { id } });
-      if(!result){
-        throw new NotFoundException(`User ID ${id} not found`)
-      }
-      return result;
-    } catch (error) {
-      throw new InternalServerErrorException(error);
+    const result = this.userRepository.findOne({ where: { id } });
+    if (!result) {
+      throw new NotFoundException(`User ID ${id} not found`);
     }
+    return result;
   }
 
   public async update(id: number, body: UpdateUserDto) {
-    try {
-      const user = await this.userRepository.findOne({ where: { id } });
-      if (!user) {
-        throw new BadRequestException('ไม่พบข้อมูลนี้ในระบบ');
-      }
-      const updatedUser = Object.assign(user, body);
-      return this.userRepository.save(updatedUser);
-    } catch (error) {
-      throw new InternalServerErrorException(error);
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new BadRequestException('ไม่พบข้อมูลนี้ในระบบ');
     }
+    const updatedUser = Object.assign(user, body);
+    return this.userRepository.save(updatedUser);
   }
 
   public async remove(id: number): Promise<void> {

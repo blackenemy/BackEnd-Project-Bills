@@ -36,61 +36,44 @@ export class BillFollowersService {
       });
       return await this.repo.save(result);
     } catch (error) {
-      throw new error();
+      throw error;
     }
   }
 
   // เลิกติดตาม
   public async unfollow(billId: number, userId: number) {
-    try {
-      const exist = await this.repo.findOne({
-        where: { bill: { id: billId }, user: { id: userId } },
-      });
-      if (!exist) throw new NotFoundException('Not following');
-
-      return await this.repo.remove(exist);
-    } catch (error) {
-      throw new error();
-    }
+    const exist = await this.repo.findOne({
+      where: { bill: { id: billId }, user: { id: userId } },
+    });
+    if (!exist) throw new NotFoundException('Not following');
+    return await this.repo.remove(exist);
   }
 
   // กำลังติดตามอยู่ไหม
   public async isFollowing(billId: number, userId: number) {
-    try {
-      const exist = await this.repo.findOne({
-        where: { bill: { id: billId }, user: { id: userId } },
-      });
-      return { isFollowing: !!exist };
-    } catch (error) {
-      throw new error();
-    }
+    const exist = await this.repo.findOne({
+      where: { bill: { id: billId }, user: { id: userId } },
+    });
+    return { isFollowing: !!exist };
   }
 
   // รายการบิลที่ฉันติดตาม
   public async listMyFollowing(userId: number) {
-    try {
-      const result = await this.repo.find({
-        where: { user: { id: userId } },
-        relations: ['bill'],
-        order: { created_at: 'DESC' },
-      });
-      return result;
-    } catch (error) {
-      throw new error();
-    }
+    const result = await this.repo.find({
+      where: { user: { id: userId } },
+      relations: ['bill'],
+      order: { created_at: 'DESC' },
+    });
+    return result;
   }
 
   // รายชื่อผู้ติดตามของบิล
   public async listFollowersOfBill(billId: number) {
-    try {
-      const result = await this.repo.find({
-        where: { bill: { id: billId } },
-        relations: ['user', 'bill'],
-        order: { created_at: 'DESC' },
-      });
-      return result;
-    } catch (error) {
-      throw new error();
-    }
+    const result = await this.repo.find({
+      where: { bill: { id: billId } },
+      relations: ['user', 'bill'],
+      order: { created_at: 'DESC' },
+    });
+    return result;
   }
 }

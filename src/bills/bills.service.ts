@@ -13,8 +13,8 @@ import { DeepPartial, Repository } from 'typeorm';
 import { getBillDto } from './dto/get-bill.dto';
 import { PaginatedBill } from 'src/common/interface/paginate.interface';
 import { NotFoundError } from 'rxjs';
-import { BillLog } from 'src/bill_logs/entities/bill_log.entity';
-import { BillLogAction } from 'src/common/enum/bill-enum';
+import { BillLog } from '../bill_logs/entities/bill_log.entity';
+import { BillLogAction } from '../common/enum/bill-enum';
 
 @Injectable()
 export class BillsService {
@@ -35,10 +35,10 @@ export class BillsService {
       const saved = await this.billRepo.save(bill);
 
       const billLog: DeepPartial<BillLog> = {
-        billId: { id: saved.id } as any,
-        userId: { id: userId } as any,
+        bill_id: saved.id,
+        user_id: userId,
         action: BillLogAction.CREATED,
-        newStatus: saved.status,
+        new_status: saved.status,
         note: 'bill created',
       };
 
@@ -49,7 +49,7 @@ export class BillsService {
 
       return await this.billRepo.save(bill);
     } catch (error) {
-      throw new error();
+      throw error;
     }
   }
 
@@ -83,7 +83,7 @@ export class BillsService {
           orderBy?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
         query.orderBy(`bill.${sortBy}`, order);
       } else {
-        query.orderBy('bill.created_At', 'DESC');
+        query.orderBy('bill.created_at', 'DESC');
       }
 
       if (findAll) {
@@ -107,74 +107,62 @@ export class BillsService {
   }
 
   public async findOne(id: number): Promise<Bill | null> {
-    try {
-      const result = await this.billRepo.findOne({ where: { id } });
-      if(!result){
-        throw new NotFoundException(`Bill ID ${id} not found`)
-      }
-      return result;
-    } catch (error) {
-      throw new error();
+    const result = await this.billRepo.findOne({ where: { id } });
+    if (!result) {
+      throw new NotFoundException(`Bill ID ${id} not found`);
     }
+    return result;
   }
 
   public async update(id: number, body: UpdateBillDto, userId: number) {
-    try {
-      const bill = await this.billRepo.findOne({ where: { id } });
-      if (!bill) {
-        throw new NotFoundException(`Bill ID ${id} not found`);
-      }
-
-      const oldStatus = bill.status ?? null;
-      const nextStatus = body.status ?? oldStatus;
-      const isChangeStatus = oldStatus != nextStatus;
-
-      const updated = this.billRepo.merge(bill, body);
-      const saved = await this.billRepo.save(bill);
-
-      const billLog: DeepPartial<BillLog> = {
-        billId: { id: saved.id } as any,
-        userId: { id: userId } as any,
-        action: isChangeStatus
-          ? BillLogAction.STATUS_CHANGED
-          : BillLogAction.UPDATED,
-        oldStatus: oldStatus,
-        newStatus: nextStatus,
-        note: 'bill update',
-      };
-
-      const billLogSave = await this.billLogRepo.save(billLog);
-      if (!billLogSave) {
-        throw new NotFoundException('Bill Log not create');
-      }
-      return await this.billRepo.save(updated);
-    } catch (error) {
-      throw new error();
+    const bill = await this.billRepo.findOne({ where: { id } });
+    if (!bill) {
+      throw new NotFoundException(`Bill ID ${id} not found`);
     }
+
+    const oldStatus = bill.status ?? null;
+    const nextStatus = body.status ?? oldStatus;
+    const isChangeStatus = oldStatus != nextStatus;
+
+    const updated = this.billRepo.merge(bill, body);
+    const saved = await this.billRepo.save(bill);
+
+    const billLog: DeepPartial<BillLog> = {
+      bill_id: { id: saved.id } as any,
+      user_id: { id: userId } as any,
+      action: isChangeStatus
+        ? BillLogAction.STATUS_CHANGED
+        : BillLogAction.UPDATED,
+      old_status: oldStatus,
+      new_status: nextStatus,
+      note: 'bill update',
+    };
+
+    const billLogSave = await this.billLogRepo.save(billLog);
+    if (!billLogSave) {
+      throw new NotFoundException('Bill Log not create');
+    }
+    return await this.billRepo.save(updated);
   }
 
   public async remove(id: number, userId: number) {
-    try {
-      const bill = await this.billRepo.findOne({ where: { id } });
-      if (!bill) {
-        throw new NotFoundException(`Bill ID ${id} not found`);
-      }
-
-      const billLog: DeepPartial<BillLog> = {
-        billId: { id } as any,
-        userId: { id: userId } as any,
-        action: BillLogAction.DELETED,
-        note: 'bill delete',
-      };
-
-      const billLogSave = await this.billLogRepo.save(billLog);
-      if (!billLogSave) {
-        throw new NotFoundException('Bill Log not create');
-      }
-      const remove = this.billRepo.softRemove(bill);
-      return remove;
-    } catch (error) {
-      throw new error();
+    const bill = await this.billRepo.findOne({ where: { id } });
+    if (!bill) {
+      throw new NotFoundException(`Bill ID ${id} not found`);
     }
+
+    const billLog: DeepPartial<BillLog> = {
+      bill_id: { id } as any,
+      user_id: { id: userId } as any,
+      action: BillLogAction.DELETED,
+      note: 'bill delete',
+    };
+
+    const billLogSave = await this.billLogRepo.save(billLog);
+    if (!billLogSave) {
+      throw new NotFoundException('Bill Log not create');
+    }
+    const remove = this.billRepo.softRemove(bill);
+    return remove;
   }
 }

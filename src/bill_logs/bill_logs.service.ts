@@ -13,7 +13,7 @@ import { NotFoundError } from 'rxjs';
 import { getBillLogDto } from './dto/get-bill_log.dto';
 import { PaginatedBillLog } from 'src/common/interface/paginate.interface';
 import dayjs from 'dayjs';
-import { BillLogAction } from 'src/common/enum/bill-enum';
+import { BillLogAction } from '../common/enum/bill-enum';
 
 @Injectable()
 export class BillLogsService {
@@ -24,21 +24,24 @@ export class BillLogsService {
 
   public async create(body: CreateBillLogDto, @Request() req) {
     try {
+      // สร้าง payload เฉพาะ field ที่ตรงกับ entity เท่านั้น (ไม่ spread ...body)
       const payload: DeepPartial<BillLog> = {
-        ...body,
-        billId: body.billId,
-        userId: body.userId,
-        action: BillLogAction.CREATED,
-        oldStatus: body.oldStatus,
-        newStatus: body.newStatus,
+        bill_id: body.billId,
+        user_id: body.userId,
+        action: body.action ?? BillLogAction.CREATED,
+        old_status: body.oldStatus,
+        new_status: body.newStatus,
+        note: body.note,
       };
-
+      // ลบ property ที่ไม่ตรงกับ entity ออกจาก body (ป้องกัน validation error)
+      // ไม่ต้องส่ง ...body เข้าไปใน create()
       const billLog = this.billLogRepo.create(payload);
       return await this.billLogRepo.save(billLog);
     } catch (err) {
       throw new InternalServerErrorException(err.message ?? err);
     }
   }
+
   public async findAll(
     params: getBillLogDto,
   ): Promise<PaginatedBillLog | BillLog[]> {
@@ -75,7 +78,7 @@ export class BillLogsService {
         query.andWhere('billLog.action = :action', { action });
       }
       if (userId) {
-        query.andWhere('billLog.user_Id = :userId', { userId });
+        query.andWhere('billLog.user_id = :userId', { userId });
       }
 
       if (sortBy) {
@@ -107,39 +110,28 @@ export class BillLogsService {
   }
 
   public async findOne(id: number) {
-    try {
-      const billLog = await this.billLogRepo.findOne({
-        where: { id }
-      });
-
-      if (!billLog) {
-        throw new NotFoundException(`Bill Log ${id} not found`);
-      }
-    } catch (error) {
-      throw new error();
+    const billLog = await this.billLogRepo.findOne({
+      where: { id }
+    });
+    if (!billLog) {
+      throw new NotFoundException(`Bill Log ${id} not found`);
     }
+    return billLog;
   }
 
   public async update(id: number, dto: UpdateBillLogDto) {
-    try {
-      const billLog = await this.billLogRepo.findOne({ where: { id } });
-      if (!billLog) {
-        throw new NotFoundException(`This action updates a #${id} billLog`);
-      }
-
-      const update = this.billLogRepo.merge(billLog, dto);
-      return await this.billLogRepo.save(update);
-    } catch (error) {
-      throw new error();
+    const billLog = await this.billLogRepo.findOne({ where: { id } });
+    if (!billLog) {
+      throw new NotFoundException(`This action updates a #${id} billLog`);
     }
+    const update = this.billLogRepo.merge(billLog, dto);
+    return await this.billLogRepo.save(update);
   }
 
   public async remove(id: number) {
-    try {
-      const billLog = await this.billLogRepo.softDelete(id);
-      if (billLog.affected === 0) {
-        throw new NotFoundException(`Bill Log ${id} not found`);
-      }
-    } catch (error) {}
+    const billLog = await this.billLogRepo.softDelete(id);
+    if (billLog.affected === 0) {
+      throw new NotFoundException(`Bill Log ${id} not found`);
+    }
   }
 }

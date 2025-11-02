@@ -1,8 +1,9 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Bill } from 'src/bills/entities/bill.entity';
-import { BillLog } from 'src/bill_logs/entities/bill_log.entity';
-import { BillFollower } from 'src/bill_followers/entities/bill_follower.entity';
+import { Bill } from '../../bills/entities/bill.entity';
+import { BillLog } from '../../bill_logs/entities/bill_log.entity';
+import { BillFollower } from '../../bill_followers/entities/bill_follower.entity';
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn({ name: 'id' })
@@ -23,22 +24,13 @@ export class User {
   @Column({ name: 'role', nullable: true })
   role: string;
 
-  @Column({
-    name: 'createdat',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdat: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp', nullable: true })
+  created_at: Date;
 
-  @Column({
-    name: 'updatedat',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  updatedat: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
+  updated_at: Date;
 
-  @OneToMany(() => Bill, (bill) => bill.created)
+  @OneToMany(() => Bill, (bill) => bill.created_by)
   bills: Bill[];
 
   @OneToMany(() => BillLog, (log) => log.user)

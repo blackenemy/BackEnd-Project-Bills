@@ -7,7 +7,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { BillLogAction } from 'src/common/enum/bill-enum';
+import { BillLogAction } from '../../common/enum/bill-enum';
 
 export class CreateBillLogDto {
   @ApiProperty({ example: 42, description: 'FK → bills.id' })

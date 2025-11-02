@@ -45,29 +45,23 @@ export class AuthService {
     firstname?: string;
     lastname?: string;
   }) {
-    try {
-      const existed = await this.userRepo.findOne({
-        where: { username: data.username },
-      });
-      if (existed) throw new UnauthorizedException('Username already exists');
+    const existed = await this.userRepo.findOne({
+      where: { username: data.username },
+    });
+    if (existed) throw new UnauthorizedException('Username already exists');
 
-      if (!data.username || !data.password) {
-        throw new UnauthorizedException('Username and password are required');
-      }
-      const hashed = await bcrypt.hash(data.password, 10);
-      const user = this.userRepo.create({
-        username: data.username,
-        password: hashed,
-        role: data.role ?? 'user',
-        firstname: data.firstname ?? '',
-        lastname: data.lastname ?? '',
-      });
-      const saved = await this.userRepo.save(user);
-      return saved;
-    } catch (error) {
-      // Log error for debugging
-      console.error('Register error:', error);
-      throw new Error('Internal server error');
+    if (!data.username || !data.password) {
+      throw new UnauthorizedException('Username and password are required');
     }
+    const hashed = await bcrypt.hash(data.password, 10);
+    const user = this.userRepo.create({
+      username: data.username,
+      password: hashed,
+      role: data.role ?? 'user',
+      firstname: data.firstname ?? '',
+      lastname: data.lastname ?? '',
+    });
+    const saved = await this.userRepo.save(user);
+    return saved;
   }
 }
