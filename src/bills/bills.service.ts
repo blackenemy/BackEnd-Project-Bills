@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  BadRequestException,
   Request,
 } from '@nestjs/common';
 import { CreateBillDto } from './dto/create-bill.dto';
@@ -10,11 +11,13 @@ import { UpdateBillDto } from './dto/update-bill.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Bill } from './entities/bill.entity';
 import { DeepPartial, Repository } from 'typeorm';
+import { LessThan } from 'typeorm';
 import { getBillDto } from './dto/get-bill.dto';
 import { PaginatedBill } from 'src/common/interface/paginate.interface';
 import { NotFoundError } from 'rxjs';
 import { BillLog } from '../bill_logs/entities/bill_log.entity';
 import { BillLogAction } from '../common/enum/bill-enum';
+import { statusEnum } from 'src/common/enum/status-enum';
 
 @Injectable()
 export class BillsService {
@@ -28,9 +31,19 @@ export class BillsService {
   public async create(body: CreateBillDto, userId: number) {
     try {
       console.log('🚀 ~ BillsService ~ create ~ req:', userId);
+      // only allow initial statuses of DRAFT or PENDING
+      const allowedInitial = [statusEnum.DRAFT, statusEnum.PENDING];
+      if (body.status && !allowedInitial.includes(body.status)) {
+        throw new BadRequestException(
+          `Initial status must be one of: ${allowedInitial.join(', ')}`,
+        );
+      }
+
+      const initialStatus = body.status ?? statusEnum.PENDING;
       const bill = this.billRepo.create({
         ...body,
         create_by: userId,
+        status: initialStatus,
       });
       const saved = await this.billRepo.save(bill);
 
@@ -47,7 +60,7 @@ export class BillsService {
         throw new NotFoundException('Bill Log not create');
       }
 
-      return await this.billRepo.save(bill);
+      return saved;
     } catch (error) {
       throw error;
     }
@@ -164,5 +177,32 @@ export class BillsService {
     }
     const remove = this.billRepo.softRemove(bill);
     return remove;
+  }
+
+  public async markPendingBillsAsLate() {
+    const cutoff = new Date(Date.now() - 15 * 60 * 1000); // 15 minutes ago
+    const pendingBills = await this.billRepo.find({
+      where: {
+        status: statusEnum.PENDING,
+        created_at: LessThan(cutoff),
+      },
+    });
+
+    for (const b of pendingBills) {
+      const old = b.status;
+      b.status = statusEnum.LATE;
+      const saved = await this.billRepo.save(b);
+
+      const billLog = {
+        bill_id: saved.id,
+        user_id: null,
+        action: BillLogAction.STATUS_CHANGED,
+        old_status: old,
+        new_status: saved.status,
+        note: 'auto marked late after 15 minutes',
+      } as DeepPartial<BillLog>;
+      await this.billLogRepo.save(billLog as any);
+      console.log(`Bill ${b.id} marked as LATE`);
+    }
   }
 }

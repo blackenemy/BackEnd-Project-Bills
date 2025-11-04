@@ -25,12 +25,12 @@ export class CreateBillDto {
   @ApiProperty({
     enum: statusEnum,
     enumName: 'BillStatus',
-    example: statusEnum.PENDING,
+    example: statusEnum.DRAFT,
     description: 'สถานะเริ่มต้นของบิล',
   })
   @IsOptional()
   @IsEnum(statusEnum)
-  status: statusEnum;
+  status?: statusEnum;
 
   
 }

@@ -8,6 +8,7 @@ import {
   Min,
 } from 'class-validator';
 import { BillLogAction } from '../../common/enum/bill-enum';
+import { statusEnum } from 'src/common/enum/status-enum';
 
 export class CreateBillLogDto {
   @ApiProperty({ example: 42, description: 'FK → bills.id' })
@@ -30,17 +31,20 @@ export class CreateBillLogDto {
   userId: number;
 
   @ApiPropertyOptional({
-    example: 'รอดำเนินการ',
+    example: statusEnum.PENDING,
     description: 'สถานะเดิม (ถ้ามี)',
   })
   @IsOptional()
-  @IsString()
-  oldStatus?: string;
+  @IsEnum(statusEnum)
+  oldStatus?: statusEnum;
 
-  @ApiPropertyOptional({ example: 'ผ่าน', description: 'สถานะใหม่ (ถ้ามี)' })
+  @ApiPropertyOptional({
+    example: statusEnum.APPROVED,
+    description: 'สถานะใหม่ (ถ้ามี)',
+  })
   @IsOptional()
-  @IsString()
-  newStatus?: string;
+  @IsEnum(statusEnum)
+  newStatus?: statusEnum;
 
   @ApiProperty({
     example: 'สร้างบิลใหม่',

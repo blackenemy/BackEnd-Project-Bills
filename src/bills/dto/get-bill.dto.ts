@@ -47,8 +47,8 @@ export class getBillDto {
   @IsBoolean()
   findAll?: boolean;
 
-  @ApiProperty({required: false})
+  @ApiProperty({required: false, example: statusEnum.DRAFT})
   @IsOptional()
   @IsEnum(statusEnum)
-  status: statusEnum;
+  status?: statusEnum;
 }

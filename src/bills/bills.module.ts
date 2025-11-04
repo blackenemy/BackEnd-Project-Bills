@@ -5,11 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Bill } from './entities/bill.entity';
 import { BillLog } from 'src/bill_logs/entities/bill_log.entity';
 import { BillFollower } from 'src/bill_followers/entities/bill_follower.entity';
+import { BillStatusTask } from 'src/tasks/bill-status.task';
 
 @Module({
   imports:[TypeOrmModule.forFeature([Bill, BillLog, BillFollower])],
   controllers: [BillsController],
-  providers: [BillsService],
+  providers: [BillsService, BillStatusTask],
   exports:[BillsService],
 })
 export class BillsModule {}

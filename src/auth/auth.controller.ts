@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags, ApiCreatedResponse, ApiUnauthorizedResponse, ApiBadRequestResponse, ApiForbiddenResponse } from '@nestjs/swagger';
 import { LocalAuthGuard } from 'src/common/guard/local-auth.guard';
 import { LoginDto } from './dto/login.dto';
 
@@ -30,6 +30,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'ล็อกอิน' })
+  @ApiUnauthorizedResponse({ description: 'ข้อมูลรับรองไม่ถูกต้อง (username/password)' })
+  @ApiBadRequestResponse({ description: 'คำขอไม่ถูกต้อง' })
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @ApiBody({ type: LoginDto })
@@ -38,6 +40,9 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'สมัครผู้ใช้' })
+  @ApiCreatedResponse({ description: 'สมัครผู้ใช้สำเร็จ' })
+  @ApiBadRequestResponse({ description: 'ข้อมูลสมัครไม่ถูกต้อง' })
+  @ApiForbiddenResponse({ description: 'ไม่มีสิทธิ์สร้างผู้ใช้ (ถ้าจำกัดการสร้าง)' })
   @Post('register')
   @ApiBody({
     schema: {
