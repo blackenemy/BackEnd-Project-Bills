@@ -13,11 +13,11 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, pass: string) {
+  async validateUser(email: string, pass: string) {
     // ต้อง select password ด้วย (เพราะ entity ซ่อน select)
     const user = await this.userRepo.findOne({
-      where: { username },
-      select: ['id', 'username', 'password', 'role'],
+      where: { email },
+      select: ['id', 'username', 'email', 'password', 'role'],
     });
     if (!user) return null;
 
@@ -30,32 +30,39 @@ export class AuthService {
     return safe;
   }
 
-  async login(user: { id: string; username: string; role: string }) {
-    const payload = { id: user.id, username: user.username, role: user.role };
+  async login(user: { id: string; username: string; email: string; role: string }) {
+    const payload = { id: user.id, username: user.username, email: user.email, role: user.role };
     return {
       access_token: await this.jwtService.signAsync(payload),
-      user: { id: user.id, username: user.username, role: user.role },
+      user: { id: user.id, username: user.username, email: user.email, role: user.role },
     };
   }
 
   async register(data: {
     username: string;
+    email: string;
     password: string;
     role?: string;
     firstname?: string;
     lastname?: string;
   }) {
-    const existed = await this.userRepo.findOne({
+    const existedUsername = await this.userRepo.findOne({
       where: { username: data.username },
     });
-    if (existed) throw new UnauthorizedException('Username already exists');
+    if (existedUsername) throw new UnauthorizedException('Username already exists');
 
-    if (!data.username || !data.password) {
-      throw new UnauthorizedException('Username and password are required');
+    const existedEmail = await this.userRepo.findOne({
+      where: { email: data.email },
+    });
+    if (existedEmail) throw new UnauthorizedException('Email already exists');
+
+    if (!data.username || !data.email || !data.password) {
+      throw new UnauthorizedException('Username, email and password are required');
     }
     const hashed = await bcrypt.hash(data.password, 10);
     const user = this.userRepo.create({
       username: data.username,
+      email: data.email,
       password: hashed,
       role: data.role ?? 'user',
       firstname: data.firstname ?? '',

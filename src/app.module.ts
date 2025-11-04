@@ -12,6 +12,8 @@ import { BillFollowersModule } from './bill_followers/bill_followers.module';
 import { Bill } from './bills/entities/bill.entity';
 import { BillFollower } from './bill_followers/entities/bill_follower.entity';
 import { BillLog } from './bill_logs/entities/bill_log.entity';
+import { CustomersModule } from './customers/customers.module';
+import { Customer } from './customers/entities/customer.entity';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { BillLog } from './bill_logs/entities/bill_log.entity';
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
-        entities: [User, Bill, BillFollower, BillLog],
+        entities: [User, Bill, BillFollower, BillLog, Customer],
         synchronize: process.env.NODE_ENV !== 'production',
         logging: process.env.NODE_ENV === 'development',
       }),
@@ -37,6 +39,7 @@ import { BillLog } from './bill_logs/entities/bill_log.entity';
     BillsModule,
     BillLogsModule,
     BillFollowersModule,
+    CustomersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

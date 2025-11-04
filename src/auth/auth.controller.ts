@@ -7,6 +7,7 @@ import { LoginDto } from './dto/login.dto';
 interface AuthUser {
   id: string;
   username: string;
+  email: string;
   role: string;
 }
 
@@ -16,8 +17,11 @@ interface AuthRequest {
 
 interface RegisterBody {
   username: string;
+  email: string;
   password: string;
   role?: string;
+  firstname?: string;
+  lastname?: string;
 }
 
 @ApiTags('Auth')
@@ -40,12 +44,13 @@ export class AuthController {
       type: 'object',
       properties: {
         username: { type: 'string', example: 'newuser' },
+        email: { type: 'string', example: 'user@example.com' },
         password: { type: 'string', example: '1234' },
         role: { type: 'string', example: 'user', enum: ['user', 'admin'] },
         firstname: { type: 'string', example: 'สมชาย' },
         lastname: { type: 'string', example: 'ใจดี' },
       },
-      required: ['username', 'password'],
+      required: ['username', 'email', 'password'],
     },
   })
   async register(@Body() body: RegisterBody) {

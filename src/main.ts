@@ -49,9 +49,13 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
-  console.log('API:           http://localhost:3000');
-  console.log('OpenAPI JSON:  http://localhost:3000/openapi.json');
-  console.log('Scalar UI:     http://localhost:3000/reference');
+  const port = process.env.PORT ?? 3001;
+  await app.listen(port);
+  
+  console.log(`🚀 API Server is running on: http://localhost:${port}`);
+  console.log(`📚 OpenAPI JSON:             http://localhost:${port}/openapi.json`);
+  console.log(`📖 Scalar UI:                http://localhost:${port}/reference`);
+  console.log(`🧪 Test Endpoint:            http://localhost:${port}/test`);
+  console.log(`❤️  Health Check:            http://localhost:${port}/health`);
 }
 void bootstrap();

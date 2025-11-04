@@ -2,6 +2,14 @@ import { BillLog } from "src/bill_logs/entities/bill_log.entity";
 import { Bill } from "src/bills/entities/bill.entity";
 import { User } from "src/user/entities/user.entity";
 
+export interface PaginationInterface<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export interface PaginatedUsers {
   users: User[];
   total: number;
