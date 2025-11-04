@@ -7,6 +7,17 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // เปิด CORS สำหรับ frontend ที่ port 3000
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001', 
+      'http://localhost:5173', // สำหรับ Vite
+      'http://localhost:4200'  // สำหรับ Angular
+    ],
+    credentials: true,
+  });
+
   // สร้างเอกสาร OpenAPI
   const config = new DocumentBuilder()
     .setTitle('My API')
