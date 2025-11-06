@@ -59,8 +59,9 @@ async function bootstrap() {
 
   // เติมข้อมูล servers ให้ OpenAPI (จะแสดงใน /openapi.json และ UI)
   document.servers = [
+    // ให้ความสำคัญกับค่า API_URL ถ้ามี หรือใช้โดเมนของ Detective Docs เป็นค่าเริ่มต้น
+    { url: process.env.API_URL ?? 'https://apiv2.detectivedocs.xyz', description: 'Configured API URL / Detective Docs' },
     { url: `http://localhost:${port}`, description: 'Local development' },
-    { url: process.env.API_URL ?? `http://localhost:${port}`, description: 'Configured API URL' },
   ];
 
   // เพิ่มตัวอย่างตัวเต็มสำหรับ DTOs ใน components.examples เพื่อให้ UI แสดง request examples

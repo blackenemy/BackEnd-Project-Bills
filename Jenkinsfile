@@ -5,6 +5,10 @@ pipeline {
     DOCKER_IMAGE = "bills-app"
     DOCKER_TAG = "latest"
     COMPOSE_FILE = "docker-compose.yml"
+    // URL used by the OpenAPI /reference UI. Can be overridden via Jenkins credentials if needed.
+    API_URL = 'https://apiv2.detectivedocs.xyz'
+    // If you prefer to store this in Jenkins Credentials, replace the line above with:
+    // API_URL = credentials('jenkins-api-url-credential-id')
   }
 
   stages {
