@@ -14,6 +14,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'http://localhost:3001', 
+      'https://projectbill.netlify.app/',
       'http://localhost:5173', // สำหรับ Vite
       'http://localhost:4200'  // สำหรับ Angular
     ],
