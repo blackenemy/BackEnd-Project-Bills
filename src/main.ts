@@ -15,6 +15,7 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:3001', 
       'https://projectbill.netlify.app/',
+      'https://apiv2.detectivedocs.xyz',
       'http://localhost:5173', // สำหรับ Vite
       'http://localhost:4200'  // สำหรับ Angular
     ],
