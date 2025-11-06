@@ -11,14 +11,25 @@ async function bootstrap() {
 
   // เปิด CORS สำหรับ frontend ที่ port 3000
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3001', 
-      'https://projectbill.netlify.app/',
-      'https://apiv2.detectivedocs.xyz',
-      'http://localhost:5173', // สำหรับ Vite
-      'http://localhost:4200'  // สำหรับ Angular
-    ],
+    // ใช้รายการต้นกำเนิดที่ถูกต้อง (ไม่มี / ต่อท้าย) และรองรับการตรวจสอบแบบฟังก์ชัน
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'https://projectbill.netlify.app',
+        'https://apiv2.detectivedocs.xyz',
+        'http://localhost:5173', // สำหรับ Vite
+        'http://localhost:4200', // สำหรับ Angular
+      ];
+      // ถ้า origin เป็น undefined (เช่นสคริปต์จากเซิร์ฟเวอร์หรือ same-origin) ให้อนุญาต
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, Authorization, X-Requested-With',
     credentials: true,
   });
 
