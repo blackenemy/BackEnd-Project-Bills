@@ -45,6 +45,15 @@ export class CustomersController {
     return this.customersService.findAll(query);
   }
 
+  @ApiOperation({ summary: 'ดึงรายการลูกค้าที่ยู่ภายใต้ผู้ใช้ที่ระบุ' })
+  @ApiOkResponse({ description: 'คืนรายการลูกค้าที่สร้างโดย userId' })
+  @ApiUnauthorizedResponse({ description: 'ต้องระบุ token (JWT)' })
+  @ApiForbiddenResponse({ description: 'ไม่มีสิทธิ์เข้าถึง' })
+  @Get('user/:userId')
+  findByUser(@Param('userId', ParseIntPipe) userId: number) {
+    return this.customersService.findByUser(userId);
+  }
+
   @ApiOperation({ summary: 'ดึงข้อมูลลูกค้าตาม ID' })
   @ApiOkResponse({ description: 'ดึงข้อมูลสำเร็จ' })
   @ApiNotFoundResponse({ description: 'ไม่พบข้อมูลลูกค้า' })
@@ -53,15 +62,6 @@ export class CustomersController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.customersService.findOne(id);
-  }
-
-  @ApiOperation({ summary: 'ดึงรายการลูกค้าที่ยู่ภายใต้ผู้ใช้ที่ระบุ' })
-  @ApiOkResponse({ description: 'คืนรายการลูกค้าที่สร้างโดย userId' })
-  @ApiUnauthorizedResponse({ description: 'ต้องระบุ token (JWT)' })
-  @ApiForbiddenResponse({ description: 'ไม่มีสิทธิ์เข้าถึง' })
-  @Get('user/:userId')
-  findByUser(@Param('userId', ParseIntPipe) userId: number) {
-    return this.customersService.findByUser(userId);
   }
 
   @ApiOperation({ summary: 'แก้ไขข้อมูลลูกค้า' })

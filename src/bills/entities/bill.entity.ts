@@ -18,14 +18,26 @@ export class Bill {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'title', nullable: true })
-  title: string;
+  @Column({ name: 'type_bill' })
+  type_bill: string;
 
-  @Column({ name: 'description', nullable: true })
-  description: string;
+  @Column({ name: 'name_bill' })
+  name_bill: string;
 
-  @Column({ name: 'amount', nullable: true })
-  amount: string;
+  @Column({ name: 'customer_name' })
+  customer_name: string;
+
+  @Column({ name: 'date', type: 'timestamp' })
+  date: Date;
+
+  @Column({ name: 'products', type: 'json' })
+  products: Array<{ name: string; price: number; amount: number }>;
+
+  @Column({ name: 'sum_amount', type: 'int' })
+  sum_amount: number;
+
+  @Column({ name: 'sum_total', type: 'decimal', precision: 10, scale: 2 })
+  sum_total: number;
 
   @Column({ name: 'status', nullable: true })
   status: string; // เช่น 'รอดำเนินการ', 'ผ่าน', 'ไม่ผ่าน', 'ยกเลิก'

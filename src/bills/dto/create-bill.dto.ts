@@ -1,32 +1,53 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { statusEnum } from 'src/common/enum/status-enum';
+import { ProductItemDto } from './product-item.dto';
 
 export class CreateBillDto {
-  @ApiProperty({ example: 'รายชื่อสินค้า', description: 'ชื่อบิล/สินค้า' })
-  @IsOptional()
+  @ApiProperty({ example: 'ใบเสร็จ', description: 'ประเภทบิล' })
+  @IsNotEmpty()
   @IsString()
-  title: string;
+  type_bill: string;
 
-  @ApiProperty({
-    example: 'ค่าใช้จ่ายของสินค้าทั้งหมด',
-    description: 'รายละเอียดเพิ่มเติมของบิล',
-    required: false,
-  })
-  @IsOptional()
+  @ApiProperty({ example: 'บิลเดือนพฤศจิกายน', description: 'ชื่อบิล' })
+  @IsNotEmpty()
   @IsString()
-  description?: string;
+  name_bill: string;
 
-  @ApiProperty({ example: '1250.50', description: 'จำนวนเงิน' })
-  @IsOptional()
+  @ApiProperty({ example: 'คุณสมชาย', description: 'ชื่อลูกค้า' })
+  @IsNotEmpty()
   @IsString()
-  amount: string;
+  customer_name: string;
+
+  @ApiProperty({ example: new Date(), description: 'วันที่ออกบิล' })
+  @IsNotEmpty()
+  @IsDate()
+  @Type(() => Date)
+  date: Date;
+
+  @ApiProperty({ type: [ProductItemDto], description: 'รายการสินค้า' })
+  @IsNotEmpty()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductItemDto)
+  products: ProductItemDto[];
+
+  @ApiProperty({ example: 5, description: 'จำนวนสินค้ารวม' })
+  @IsNotEmpty()
+  @IsNumber()
+  sum_amount: number;
+
+  @ApiProperty({ example: 1250.50, description: 'ยอดรวมทั้งหมด' })
+  @IsNotEmpty()
+  @IsNumber()
+  sum_total: number;
 
   @ApiProperty({
     enum: statusEnum,
     enumName: 'BillStatus',
     example: statusEnum.DRAFT,
-    description: 'สถานะเริ่มต้นของบิล',
+    description: 'สถานะของบิล',
   })
   @IsOptional()
   @IsEnum(statusEnum)
