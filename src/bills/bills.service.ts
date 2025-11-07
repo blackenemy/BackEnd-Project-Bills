@@ -119,6 +119,16 @@ export class BillsService {
     }
   }
 
+  // หา bills ที่ผู้ใช้สร้าง (filter by create_by)
+  public async findByUser(userId: number): Promise<Bill[]> {
+    try {
+      const result = await this.billRepo.find({ where: { create_by: userId } });
+      return result;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
   public async findOne(id: number): Promise<Bill | null> {
     const result = await this.billRepo.findOne({ where: { id } });
     if (!result) {

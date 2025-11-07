@@ -71,6 +71,19 @@ export class CustomersService {
     };
   }
 
+  async findByUser(userId: number): Promise<Customer[]> {
+    try {
+      const customers = await this.customerRepository.find({
+        where: { create_by: userId },
+        relations: ['created_by'],
+        order: { created_at: 'DESC' },
+      });
+      return customers;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async findOne(id: number): Promise<Customer> {
     const customer = await this.customerRepository.findOne({
       where: { id, deleted_at: IsNull() },

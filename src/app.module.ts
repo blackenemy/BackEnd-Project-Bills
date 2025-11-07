@@ -20,8 +20,7 @@ import { Customer } from './customers/entities/customer.entity';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRootAsync({
-      useFactory: () => ({
+    TypeOrmModule.forRoot({
         type: 'postgres',
         host: process.env.DB_HOST,
         port: Number(process.env.DB_PORT ?? 5432),
@@ -31,7 +30,6 @@ import { Customer } from './customers/entities/customer.entity';
         entities: [User, Bill, BillFollower, BillLog, Customer],
         synchronize: process.env.NODE_ENV !== 'production',
         logging: process.env.NODE_ENV === 'development',
-      }),
     }),
 
     UserModule,
