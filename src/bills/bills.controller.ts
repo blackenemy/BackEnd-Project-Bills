@@ -72,6 +72,18 @@ export class BillsController {
     return this.billsService.findByUser(Number(userId));
   }
 
+  @ApiOperation({ summary: 'ค้นหาบิลตาม customer ID' })
+  @ApiOkResponse({ description: 'คืนรายการบิลของลูกค้าที่ระบุ' })
+  @ApiNotFoundResponse({ description: 'ไม่พบบิลของลูกค้าตาม ID ที่ให้มา' })
+  @ApiUnauthorizedResponse({ description: 'ต้องระบุ token (JWT)' })
+  @ApiForbiddenResponse({ description: 'ไม่มีสิทธิ์เข้าถึง' })
+  @ApiBearerAuth('bearer')
+  @UseGuards(JwtAuthGuard)
+  @Get('customer/:customerId')
+  public async findByCustomer(@Param('customerId') customerId: number): Promise<Bill[]> {
+    return this.billsService.findByCustomerId(Number(customerId));
+  }
+
   @ApiOperation({ summary: 'ติดตามบิลตามเลขไอดี' })
   @ApiOkResponse({ description: 'คืนรายละเอียดของบิลที่ระบุ' })
   @ApiNotFoundResponse({ description: 'ไม่พบบิลตาม id ที่ให้มา' })
