@@ -32,6 +32,9 @@ services:
     restart: unless-stopped
     ports:
       - "3100:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       # Database Configuration
       DB_HOST: postgres
@@ -55,9 +58,6 @@ services:
       
       # Node Environment
       NODE_ENV: production
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
       - app-network
     volumes:
