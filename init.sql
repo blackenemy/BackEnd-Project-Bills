@@ -30,9 +30,13 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS bills (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(255),
-    description TEXT,
-    amount VARCHAR(255),
+    type_bill VARCHAR(255),
+    name_bill VARCHAR(255),
+    customer_name VARCHAR(255),
+    date TIMESTAMP,
+    products JSON,
+    sum_amount INTEGER,
+    sum_total DECIMAL(10,2),
     status VARCHAR(50),
     create_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
