@@ -10,8 +10,9 @@ import { CreateBillDto } from './dto/create-bill.dto';
 import { UpdateBillDto } from './dto/update-bill.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Bill } from './entities/bill.entity';
-import { DeepPartial, Repository } from 'typeorm';
+import { DeepPartial, Repository, IsNull } from 'typeorm';
 import { LessThan } from 'typeorm';
+import { Customer } from '../customers/entities/customer.entity';
 import { getBillDto } from './dto/get-bill.dto';
 import { PaginatedBill } from 'src/common/interface/paginate.interface';
 import { NotFoundError } from 'rxjs';
@@ -26,6 +27,8 @@ export class BillsService {
     private readonly billRepo: Repository<Bill>,
     @InjectRepository(BillLog)
     private readonly billLogRepo: Repository<BillLog>,
+    @InjectRepository(Customer)
+    private readonly customerRepo: Repository<Customer>
   ) {}
 
   public async create(body: CreateBillDto, userId: number) {
@@ -39,9 +42,23 @@ export class BillsService {
         );
       }
 
+      // ค้นหาลูกค้าจากชื่อ
+      const customer = await this.customerRepo.findOne({
+        where: {
+          firstname: body.customer_name,
+          deleted_at: IsNull()
+        }
+      });
+
+      if (!customer) {
+        throw new NotFoundException(`ไม่พบข้อมูลลูกค้าชื่อ ${body.customer_name}`);
+      }
+
       const initialStatus = body.status ?? statusEnum.PENDING;
+      const { customer_name, ...billData } = body;
       const bill = this.billRepo.create({
-        ...body,
+        ...billData,
+        customer_id: customer.id,
         create_by: userId,
         status: initialStatus,
       });

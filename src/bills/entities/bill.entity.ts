@@ -25,9 +25,6 @@ export class Bill {
   @Column({ name: 'name_bill' })
   name_bill: string;
 
-  @Column({ name: 'customer_name' })
-  customer_name: string;
-
   @Column({ name: 'date', type: 'timestamp' })
   date: Date;
 

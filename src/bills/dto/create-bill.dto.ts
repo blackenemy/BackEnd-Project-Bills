@@ -15,7 +15,7 @@ export class CreateBillDto {
   @IsString()
   name_bill: string;
 
-  @ApiProperty({ example: 'คุณสมชาย', description: 'ชื่อลูกค้า' })
+  @ApiProperty({ example: 'สมชาย', description: 'ชื่อลูกค้า' })
   @IsNotEmpty()
   @IsString()
   customer_name: string;
