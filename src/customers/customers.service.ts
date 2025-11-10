@@ -16,12 +16,25 @@ export class CustomersService {
 
   async create(createCustomerDto: CreateCustomerDto, userId: number): Promise<Customer> {
     // ตรวจสอบว่า email ซ้ำหรือไม่
-    const existingCustomer = await this.customerRepository.findOne({
+    const existingEmail = await this.customerRepository.findOne({
       where: { email: createCustomerDto.email, deleted_at: IsNull() },
     });
 
-    if (existingCustomer) {
+    if (existingEmail) {
       throw new ConflictException('อีเมลนี้มีอยู่ในระบบแล้ว');
+    }
+
+    // ตรวจสอบว่าชื่อและนามสกุลซ้ำหรือไม่
+    const existingName = await this.customerRepository.findOne({
+      where: {
+        firstname: createCustomerDto.firstname,
+        lastname: createCustomerDto.lastname,
+        deleted_at: IsNull(),
+      },
+    });
+
+    if (existingName) {
+      throw new ConflictException('ชื่อและนามสกุลนี้มีอยู่ในระบบแล้ว');
     }
 
     const customer = this.customerRepository.create({
@@ -99,6 +112,24 @@ export class CustomersService {
 
   async update(id: number, updateCustomerDto: UpdateCustomerDto): Promise<Customer> {
     const customer = await this.findOne(id);
+
+    // ตรวจสอบการซ้ำของชื่อและนามสกุล เมื่อมีการอัพเดต
+    if (updateCustomerDto.firstname || updateCustomerDto.lastname) {
+      const existingName = await this.customerRepository.createQueryBuilder('customer')
+        .where('customer.firstname = :firstname', { 
+          firstname: updateCustomerDto.firstname || customer.firstname 
+        })
+        .andWhere('customer.lastname = :lastname', { 
+          lastname: updateCustomerDto.lastname || customer.lastname 
+        })
+        .andWhere('customer.id != :id', { id })
+        .andWhere('customer.deleted_at IS NULL')
+        .getOne();
+
+      if (existingName) {
+        throw new ConflictException('ชื่อและนามสกุลนี้มีอยู่ในระบบแล้ว');
+      }
+    }
 
     // ตรวจสอบว่า email ซ้ำหรือไม่ (ถ้ามีการเปลี่ยน email)
     if (updateCustomerDto.email && updateCustomerDto.email !== customer.email) {
