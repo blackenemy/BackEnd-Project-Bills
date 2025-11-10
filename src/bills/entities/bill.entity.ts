@@ -12,6 +12,7 @@ import {
 import { User } from '../../user/entities/user.entity';
 import { BillLog } from '../../bill_logs/entities/bill_log.entity';
 import { BillFollower } from '../../bill_followers/entities/bill_follower.entity';
+import { Customer } from '../../customers/entities/customer.entity';
 
 @Entity('bills')
 export class Bill {
@@ -48,6 +49,13 @@ export class Bill {
 
   @Column({ name: 'create_by', nullable: true })
   create_by: number;
+
+  @Column({ name: 'customer_id', nullable: true })
+  customer_id: number;
+
+  @ManyToOne(() => Customer, (customer) => customer.bills)
+  @JoinColumn({ name: 'customer_id' })
+  customer: Customer;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp', nullable: true })
   created_at: Date;

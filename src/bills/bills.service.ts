@@ -131,12 +131,15 @@ export class BillsService {
 
   public async findByCustomerId(customerId: number): Promise<Bill[]> {
     try {
-      const bills = await this.billRepo
-        .createQueryBuilder('bill')
-        .leftJoinAndSelect('bill.customer', 'customer')
-        .where('bill.customer_id = :customerId', { customerId })
-        .orderBy('bill.created_at', 'DESC')
-        .getMany();
+      const bills = await this.billRepo.find({
+        where: {
+          customer_id: customerId
+        },
+        relations: ['customer'],
+        order: {
+          created_at: 'DESC'
+        }
+      });
 
       if (!bills.length) {
         throw new NotFoundException(`No bills found for customer ID ${customerId}`);

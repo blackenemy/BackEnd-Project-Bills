@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
+import { Bill } from '../../bills/entities/bill.entity';
 
 @Entity('customers')
 export class Customer {
@@ -36,6 +37,9 @@ export class Customer {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'create_by' })
   created_by: User;
+
+  @OneToMany(() => Bill, (bill) => bill.customer)
+  bills: Bill[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp', nullable: true })
   created_at: Date;
