@@ -30,6 +30,18 @@ import { Customer } from './customers/entities/customer.entity';
         entities: [User, Bill, BillFollower, BillLog, Customer],
         synchronize: process.env.NODE_ENV !== 'production',
         logging: process.env.NODE_ENV === 'development',
+        // Connection pool configuration
+        extra: {
+            max: 10, // Maximum number of connections in pool
+            min: 2,  // Minimum number of connections in pool
+            acquire: 30000, // Maximum time to acquire connection (30 seconds)
+            idle: 10000,    // Maximum time connection can be idle (10 seconds)
+            evict: 1000,    // How often to run eviction (1 second)
+        },
+        // Additional TypeORM connection options
+        maxQueryExecutionTime: 5000, // Log slow queries over 5 seconds
+        retryAttempts: 3,
+        retryDelay: 1000,
     }),
 
     UserModule,
