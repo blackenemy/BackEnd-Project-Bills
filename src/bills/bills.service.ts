@@ -35,7 +35,7 @@ export class BillsService {
     try {
       console.log('🚀 ~ BillsService ~ create ~ req:', userId);
       // only allow initial statuses of DRAFT or PENDING
-      const allowedInitial = [statusEnum.DRAFT, statusEnum.PENDING];
+      const allowedInitial = [statusEnum.DRAFT, statusEnum.PENDING, statusEnum.APPROVED];
       if (body.status && !allowedInitial.includes(body.status)) {
         throw new BadRequestException(
           `Initial status must be one of: ${allowedInitial.join(', ')}`,
