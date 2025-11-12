@@ -40,6 +40,26 @@ export class Bill {
   @Column({ name: 'status', nullable: true })
   status: string; // เช่น 'รอดำเนินการ', 'ผ่าน', 'ไม่ผ่าน', 'ยกเลิก'
 
+  @Column({ 
+    name: 'payment', 
+    type: 'json', 
+    nullable: true,
+    comment: 'ข้อมูลการชำระเงิน' 
+  })
+  payment: {
+    customer_name: string;
+    payment: number;
+    details: {
+      type: string;
+      date: Date;
+      bills: Array<{
+        name: string;
+        price: number;
+        amount: number;
+      }>;
+    };
+  } | null;
+
   @ManyToOne(() => User, (user) => user.bills, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'create_by' })
   created_by: User | null;

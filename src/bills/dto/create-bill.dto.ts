@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import { IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { statusEnum } from 'src/common/enum/status-enum';
 import { ProductItemDto } from './product-item.dto';
+import { PaymentDto } from './payment.dto';
 
 export class CreateBillDto {
   @ApiProperty({ example: 'ใบเสร็จ', description: 'ประเภทบิล' })
@@ -53,5 +54,28 @@ export class CreateBillDto {
   @IsEnum(statusEnum)
   status?: statusEnum;
 
-  
+  @ApiProperty({
+    type: PaymentDto,
+    description: 'ข้อมูลการชำระเงิน (ไม่บังคับ)',
+    required: false,
+    example: {
+      customer_name: 'สมชาย ใจดี',
+      payment: 1500.00,
+      details: {
+        type: 'เงินสด',
+        date: new Date(),
+        bills: [
+          {
+            name: 'สินค้า A',
+            price: 150.00,
+            amount: 2
+          }
+        ]
+      }
+    }
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PaymentDto)
+  payment?: PaymentDto;
 }
